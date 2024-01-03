@@ -2,19 +2,19 @@ from numba import njit
 import numpy as np
 import pygame
 
-#fractals
+# Fractals
 MANDELBROT = "Mandelbrot"
 JULIA = "Julia"
 RATIONAL = "Rational"
 
-# gets color based on iteration
+# Gets color based on iteration
 @njit
 def get_color(iteration, max_iter):
     if iteration == max_iter:
         return 0, 0, 0  # Black if inside the set
     return 255 - int(iteration * 255 / max_iter), 255 - int(iteration * 255 / (max_iter / 2)), 255 - int(iteration * 255 / (max_iter / 3))
 
-#Rational fractal
+# Rational fractal
 @njit
 def rational_set(c, max_iter):
     iteration = 0
@@ -25,7 +25,7 @@ def rational_set(c, max_iter):
         iteration += 1
     return iteration
 
-# Fractal gen, using njit for speed
+# Fractal generation using njit for speed
 @njit
 def generate_fractal(width, height, zoom, move_x, move_y, fractal_type, max_iter=256):
     fractal = np.zeros((height, width, 3), dtype=np.uint8)
@@ -81,7 +81,7 @@ move_y = 0.0
 current_fractal = MANDELBROT
 max_iter = 256
 
-# big loop deals with zooming and mouse interactions
+# Main loop deals with zooming and mouse interactions
 running = True
 fractal = generate_fractal(width, height, zoom, move_x, move_y, current_fractal, max_iter)
 while running:
@@ -135,6 +135,12 @@ while running:
         label = "Reset Zoom" if fractal_type == "Reset" else fractal_type
         text = font.render(label, True, (0, 0, 0))
         screen.blit(text, (button.x + 20, button.y + 10))
+
+    # Draw the zoom rectangle if dragging
+    if dragging:
+        end_pos = pygame.mouse.get_pos()
+        rect = pygame.Rect(start_pos, (end_pos[0] - start_pos[0], end_pos[1] - start_pos[1]))
+        pygame.draw.rect(screen, (255, 255, 255), rect, 2)  # White rectangle for visibility
 
     pygame.display.flip()
 
